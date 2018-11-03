@@ -12,6 +12,30 @@
 
 #define LARGEURW 1280
 #define HAUTEURW 720
+/*void afficherCompteur(const char policeT[],int g,SDL_Renderer *renderer, int taille, SDL_Color couleur,SDL_Window *window)
+{
+        int largeurFN, hauteurFN;
+        TTF_Font *police = NULL;
+        char compteur[7] = " ";
+        sprintf(compteur, "%d", g);
+        police = TTF_OpenFont(policeT, taille);
+        SDL_Surface *surfaceTexte;
+        surfaceTexte = TTF_RenderText_Solid(police, compteur, couleur);
+        SDL_GetWindowSize(window, &largeurFN, &hauteurFN);
+        SDL_Texture *texture = NULL;
+        texture = SDL_CreateTextureFromSurface(renderer,surfaceTexte);
+        SDL_Rect rect;
+        rect.x=largeurFN-surfaceTexte->w-20;
+        rect.y=20;
+        SDL_QueryTexture(texture,NULL,NULL,&rect.w,&rect.h);
+
+        SDL_RenderCopy(renderer, texture, NULL, &rect);
+
+        SDL_DestroyTexture(texture);
+        TTF_CloseFont(police);
+        SDL_FreeSurface(surfaceTexte);
+        SDL_RenderPresent(renderer);
+} */
 
 void initPiliers(int N, int pilier1[], int pilier2[], int pilier3[])
 {
@@ -30,15 +54,18 @@ int i=0;
     }
 }
 
-void tableauToDisque(int pilier1[], int pilier2[],int  pilier3[],SDL_Renderer *renderer, int N, SDL_Window *window)
+void tableauToDisque(int pilier1[], int pilier2[],int  pilier3[],SDL_Renderer *renderer, int N, SDL_Window *window,SDL_Color color)
 {
+    static double g=-1;
     int i=0;
     for (i=0; i<N; i++)
     {
-        afficherDisque(renderer, pilier1[i], 1, i+1, pilier1[i]%9,N,window);
-        afficherDisque(renderer, pilier2[i], 2, i+1, pilier2[i]%9,N,window);
-        afficherDisque(renderer, pilier3[i], 3, i+1, pilier3[i]%9,N,window);
+        afficherDisque(renderer, pilier1[i], 1, i+1, pilier1[i]%6,N,window);
+        afficherDisque(renderer, pilier2[i], 2, i+1, pilier2[i]%6,N,window);
+        afficherDisque(renderer, pilier3[i], 3, i+1, pilier3[i]%6,N,window);
     }
+    g++;
+    /*afficherCompteur("open.ttf",g,renderer,30,color,window);*/
 
 }
 int maxTableau(int tableau[], int indicemax)
@@ -71,12 +98,12 @@ int indiceTableau(int tableau[], int indicemax)
 
     return i;
 }
-void Hanoi(int n, char depart, char arrivee, char libre, int pilier1[],int pilier2[],int pilier3[],int secondes, int N, SDL_Renderer *renderer,SDL_Window *window)
+void Hanoi(int n, char depart, char arrivee, char libre, int pilier1[],int pilier2[],int pilier3[],int secondes, int N, SDL_Renderer *renderer,SDL_Window *window,SDL_Color color)
 {
 static int g=0;
 if (n>0) {
 
-Hanoi(n-1,depart,libre,arrivee,pilier1,pilier2,pilier3, secondes,N, renderer,window);
+Hanoi(n-1,depart,libre,arrivee,pilier1,pilier2,pilier3, secondes,N, renderer,window,color);
 int f,q,d;
 
 if (depart=='A' && arrivee == 'B')
@@ -148,13 +175,13 @@ SDL_RenderClear(renderer);
 
 jouerLet(renderer,window);
 
-tableauToDisque(pilier1, pilier2, pilier3, renderer, N, window);
+tableauToDisque(pilier1, pilier2, pilier3, renderer, N, window,color);
 
 
 
     SDL_RenderPresent(renderer);
 SDL_Delay(secondes);
-Hanoi(n-1,libre,arrivee,depart,pilier1,pilier2,pilier3,secondes, N, renderer,window);
+Hanoi(n-1,libre,arrivee,depart,pilier1,pilier2,pilier3,secondes, N, renderer,window,color);
 }
 }
 void afficherDisque(SDL_Renderer *renderer, int valeurDisque, int pilier, int index, int couleur, int N, SDL_Window *window)
@@ -163,50 +190,55 @@ void afficherDisque(SDL_Renderer *renderer, int valeurDisque, int pilier, int in
     {
 
 
-    if(couleur==0)
-        {SDL_SetRenderDrawColor(renderer,255,0,0, SDL_ALPHA_OPAQUE);} // ROUGE
-    if(couleur==1)
-        {SDL_SetRenderDrawColor(renderer,0,255,0, SDL_ALPHA_OPAQUE);} // BLEU
-    if(couleur==2)
-        {SDL_SetRenderDrawColor(renderer,0,0,255,SDL_ALPHA_OPAQUE);} // VERT
-    if(couleur==3)
-        {SDL_SetRenderDrawColor(renderer,255,128,0,SDL_ALPHA_OPAQUE);} // ORANGE
-    if(couleur==4)
-        {SDL_SetRenderDrawColor(renderer,0,255,128,SDL_ALPHA_OPAQUE);} // TURQUOISE
-    if(couleur==5)
-        {SDL_SetRenderDrawColor(renderer,128,0,255,SDL_ALPHA_OPAQUE);}  // VIOLET
-    if(couleur==6)
-        {SDL_SetRenderDrawColor(renderer,255,255,0, SDL_ALPHA_OPAQUE);} // JAUNE
-    if(couleur==7)
-        {SDL_SetRenderDrawColor(renderer,0,255,255, SDL_ALPHA_OPAQUE);} // CYAN
-    if(couleur==8)
-        {SDL_SetRenderDrawColor(renderer,255,0,255, SDL_ALPHA_OPAQUE);}  // MAGENTA
+    switch (couleur)
+    {
+
+
+    case 0:
+        SDL_SetRenderDrawColor(renderer,255,111,111, SDL_ALPHA_OPAQUE);
+        break; // ROUGE
+    case 1:
+        SDL_SetRenderDrawColor(renderer,255,255,111, SDL_ALPHA_OPAQUE);
+        break; // BLEU
+    case 2:
+        SDL_SetRenderDrawColor(renderer,111,255,111,SDL_ALPHA_OPAQUE);
+        break; // VERT
+    case 3:
+        SDL_SetRenderDrawColor(renderer,111,255,255,SDL_ALPHA_OPAQUE);
+        break; // ORANGE
+    case 4:
+        SDL_SetRenderDrawColor(renderer,111,111,255,SDL_ALPHA_OPAQUE);
+        break;// TURQUOISE
+    case 5:
+        SDL_SetRenderDrawColor(renderer,255,111,255,SDL_ALPHA_OPAQUE);
+        break;  // VIOLET
+    }
     int largeurFN, hauteurFN, decalage=20;
     if (N<=3)
     {
-        decalage=80;
+        decalage=90;
     }
     else if (N==4)
     {
-        decalage=70;
+        decalage=80;
     }
     else if (N==5)
     {
-        decalage=50;
+        decalage=70;
     }
     else if (N<=7)
     {
-        decalage=40;
+        decalage=50;
     }
     else if (N<=9)
     {
-        decalage=30;
+        decalage=40;
     }
     else if (N<=14)
     {
-        decalage = 20;
+        decalage = 30;
     }
-    else {decalage = 15;}
+    else {decalage = 20;}
     SDL_GetWindowSize(window, &largeurFN, &hauteurFN);
     SDL_Rect Disque;
     Disque.w=380*largeurFN/1280-(valeurDisque*decalage);
@@ -235,26 +267,33 @@ void jouerLet(SDL_Renderer *renderer,SDL_Window *window)
     if (largeurFN==1280 && hauteurFN==720)
     {
         afficherImage("fond720.jpg", renderer, 0,0);
-        SDL_SetRenderDrawColor(renderer, 242,132,11, SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(renderer, 230,110,50, SDL_ALPHA_OPAQUE);
         SDL_Rect pilier;
         pilier.x=203;
         pilier.y=60;
         pilier.h=660;
         pilier.w=20;
         SDL_RenderFillRect(renderer, &pilier);
-
+        SDL_SetRenderDrawColor(renderer, 0,0,0, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawRect(renderer, &pilier);
+        SDL_SetRenderDrawColor(renderer, 230,110,50, SDL_ALPHA_OPAQUE);
         pilier.x=630;
 
         SDL_RenderFillRect(renderer, &pilier);
+        SDL_SetRenderDrawColor(renderer, 0,0,0, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawRect(renderer, &pilier);
+        SDL_SetRenderDrawColor(renderer, 230,110,50, SDL_ALPHA_OPAQUE);
 
         pilier.x=1057;
 
         SDL_RenderFillRect(renderer, &pilier);
+        SDL_SetRenderDrawColor(renderer, 0,0,0, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawRect(renderer, &pilier);
     }
     else
     {
         afficherImage("fond1080.jpg",renderer,0,0);
-        SDL_SetRenderDrawColor(renderer, 242,132,11, SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(renderer, 230,110,50, SDL_ALPHA_OPAQUE);
         SDL_Rect pilier;
         pilier.x=largeurFN/6-15;
         pilier.y=60;
@@ -386,6 +425,7 @@ int main(int argc, char** argv)
         SDL_Surface options = afficherTexte("righteous.ttf","Options", renderer, 60, xOptions, yOptions, couleurNoir);
         int optionsW = options.w-20, optionsH = options.h-20;
 
+
         SDL_RenderPresent(renderer);
     //////////////////////////////////////////////////
         SDL_bool menu = SDL_TRUE;
@@ -405,10 +445,10 @@ int main(int argc, char** argv)
                               {
                                     SDL_RenderClear(renderer);
                                     jouerLet(renderer,window);
-                                    tableauToDisque(pilier1,pilier2,pilier3,renderer,N,window);
+                                    tableauToDisque(pilier1,pilier2,pilier3,renderer,N,window,couleurNoir);
                                     SDL_RenderPresent(renderer);
                                     SDL_Delay(secondes);
-                                    Hanoi(N,'A','C','B',pilier1,pilier2,pilier3,secondes,N, renderer,window);
+                                    Hanoi(N,'A','C','B',pilier1,pilier2,pilier3,secondes,N, renderer,window,couleurNoir);
                                     initPiliers(N,pilier1,pilier2,pilier3);
 
                               }
@@ -484,10 +524,10 @@ int main(int argc, char** argv)
                             {
                                     SDL_RenderClear(renderer);
                                     jouerLet(renderer,window);
-                                    tableauToDisque(pilier1,pilier2,pilier3,renderer,N,window);
+                                    tableauToDisque(pilier1,pilier2,pilier3,renderer,N,window,couleurNoir);
                                     SDL_RenderPresent(renderer);
                                     SDL_Delay(secondes);
-                                    Hanoi(N,'A','C','B',pilier1,pilier2,pilier3,secondes,N, renderer,window);
+                                    Hanoi(N,'A','C','B',pilier1,pilier2,pilier3,secondes,N, renderer,window,couleurNoir);
                                     initPiliers(N,pilier1,pilier2,pilier3);
                             }
 
